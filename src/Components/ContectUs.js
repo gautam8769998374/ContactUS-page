@@ -1,10 +1,14 @@
-import React, { useState,  } from 'react'
+import React, { useState   } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ContectUs.css'
 import phoneIcon from './contact-phone-icon.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope , faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Dropdown } from "react-bootstrap";
+import { Button  } from 'react-bootstrap';
+import { toast,ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 // import { BsThreeDotsVertical } from "react-icons/bs";
 
 
@@ -16,14 +20,93 @@ const ContectUs = () => {
   const handleCodeSelect = (code) => {
     setSelectedCode(code);
   };
-  const [email, setEmail] = useState("");
+  const [email , setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [touchedEmail, setTouchedEmail] = useState(false);
 
-  const handleEmailChange = (e) => {
-    setEmail (e.target.value);
-    setValidEmail(validateEmail(e.target.value));
+  const [fullName , setFullName] = useState(" ");
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [nameLengthError, setNameLengthError] = useState(false);
+  
+  const [jobTitle,setJobTitle] = useState(" ");
+  const [companyName , setCompanyName] = useState(" ");
+  const [phoneNo, setPhoneNo] = useState(" ");
+
+  const handleFullNameChange = (event) => {
+    const value = event.target.value;
+    if(/^[a-zA-Z\s]*$/.test(value)){
+      setFullName(value);
+      setIsInvalid(false);
+    }else {
+      setIsInvalid(true)
+    }
+    if(value.length < 5) {
+      setNameLengthError(true);
+    } else {
+      setNameLengthError(false);
+    }
   };
+  const inputStyles= {
+    borderColor : isInvalid ? "red" : ''
+    
+  }
+
+  
+ const handleJobTitleChange = (e) => {
+    setJobTitle(e.target.value);
+ }
+
+ const handleCompanyNameChange = (e) => {
+  setCompanyName(e.target.value);
+ }
+
+ const handlePhoneNoChange = (e) => {
+  setPhoneNo(e.target.value);
+ }
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value
+    setEmail (value)
+    if (validateEmail(value)) {
+      setValidEmail(true)
+    }else{
+      setValidEmail(false)
+    }
+    // setValidEmail(validateEmail(e.target.value));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!fullName || !email || !jobTitle || !phoneNo) {
+      // alert("All fields are mandatory")
+      // toast.error("All fields are mandatory");
+      toast.error('All fields are mandatory', {
+        position: "top-left",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        toastClassName: 'style',
+        style: { 
+          width: '1310px',
+          height: '20px',
+          backgroundColor: 'red',
+          color: '#fff',
+          marginTop: "-25px",
+          padding: '20px px',
+          borderRadius: '10px'
+        }
+
+        });
+    }else {
+      return
+    }
+
+  }
 
   const handleEmailBlur = () => {
     setTouchedEmail(true)
@@ -33,6 +116,8 @@ const ContectUs = () => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ ;
     return re.test(email);
   };
+
+
    
   const getIcon = () => {
     if (touchedEmail || document.activeElement === document.getElementById('email')){
@@ -42,7 +127,7 @@ const ContectUs = () => {
         <FontAwesomeIcon icon={faCheckCircle} />
       </span>
       );
-    }else if (email !== " ") {
+    }else if (email.trim().length > 0) {
       return(
         <span className="input-group-text bg-light-gray c-red p-3 icon-container">
         <FontAwesomeIcon icon={faTimesCircle} />
@@ -55,6 +140,10 @@ const ContectUs = () => {
     return null;
   }
 };
+
+const inputStyles1 = {
+  border : (touchedEmail && !validEmail) ? '1px solid red' : '',
+}
     return (
         <div>
         <div class="my-3 problem-statement-sec shadow">
@@ -160,21 +249,34 @@ const ContectUs = () => {
     </div>
     </div>
     <div class="col-12 col-md-7">
-    <form name="Form1" onsubmit="if (!window.__cfRLUnblockHandlers) return false; return Form1_Validator(this)" action="subscribecontactus_new.asp?send=cs" method="post">
+    <form name="Form1" onSubmit={handleSubmit} action="subscribecontactus_new.asp?send=cs" method="post">
     <div class="row">
     <div class="col-12 col-md-6">
     <label class="font15 c-gray">Full Name <span class="c-red font-weight-bold font15">*</span></label>
     <div class="input-group mb-3">
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="first_name" name="first_name" maxlength="40"/>
+    <input type="text" 
+    class="form-control bg-light-gray" 
+    aria-label="Default" 
+    aria-describedby="inputGroup-sizing-default" 
+    id="first_name" 
+    name="first_name" 
+    maxlength="40"
+    minLength="4"
+    required
+    value={fullName}
+    onChange={handleFullNameChange}
+    style={inputStyles}
+    />
     </div>
+    {isInvalid && (
+      <div className='text-danger'> Invalid full name. Please enter only alphabetic characters [a-zA-Z].</div>
+    
+    )}
+    {nameLengthError && (
+      <p className='text-danger'> Name length should be minimum 4 characters </p>
+    )}
     </div>
-{/*     
-    <div class="col-12 col-md-6">
-    <label class="font15 c-gray">Job Title <span class="c-red font-weight-bold font15">*</span></label>
-    <div class="input-group mb-3">
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="job_title" maxlength="80" name="job_title"/>
-    </div>
-    </div> */}
+
     </div>
     <div class="row">
     <div class="col-12">
@@ -185,26 +287,45 @@ const ContectUs = () => {
     <FontAwesomeIcon icon={faEnvelope} />
     </span>
     </div>
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" 
-    id="email" maxlength="80" name="email" value={email}
+    <input type="text" 
+    class="form-control bg-light-gray" 
+    aria-label="Default" 
+    aria-describedby="inputGroup-sizing-default" 
+    id="email" maxlength="80" 
+     name="email" 
+     required
+     value={email}
      onChange={handleEmailChange}
      onBlur={handleEmailBlur}
+     style={inputStyles1}
      />
      {getIcon()}
     </div>
+    {touchedEmail && !validEmail && <p className='e-red'>Invalid Email</p>}
     </div>
     </div>
     <div class="col-12 col-md-6">
     <label class="font15 c-gray">Job Title <span class="c-red font-weight-bold font15">*</span></label>
     <div class="input-group mb-3">
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="job_title" maxlength="80" name="job_title"/>
+    <input type="text" class="form-control bg-light-gray"
+     aria-label="Default" aria-describedby="inputGroup-sizing-default"
+      id="job_title" maxlength="80" name="job_title"
+      required
+      value={jobTitle}
+      onChange={handleJobTitleChange}/>
     </div>
     </div>
     <div class="row">
     <div class="col-12 col-md-6">
     <label class="font15 c-gray">Company Name <span class="c-red font-weight-bold font15">*</span></label>
     <div class="input-group mb-3">
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="company" maxlength="80" name="company"/>
+    <input type="text" 
+    class="form-control bg-light-gray" aria-label="Default" 
+    aria-describedby="inputGroup-sizing-default" id="company" 
+    maxlength="80" name="company"
+    required
+    value={companyName}
+    onChange={handleCompanyNameChange}/>
     </div>
     </div>
     
@@ -873,7 +994,14 @@ const ContectUs = () => {
         
       </Dropdown.Menu>
     </Dropdown>
-    <input type="text" class="form-control bg-light-gray" aria-label="Default" aria-describedby="inputGroup-sizing-default" id="phone_no" maxlength="40" name="phone_no"/>
+    <input type="text" class="form-control bg-light-gray" 
+    aria-label="Default" aria-describedby="inputGroup-sizing-default" 
+    id="phone_no"
+     maxlength="40"
+     name="phone_no"
+     required
+    value={phoneNo}
+    onChange={handlePhoneNoChange}/>
     </div>
     </div>
     </div>
@@ -1387,7 +1515,9 @@ const ContectUs = () => {
     <div class="col-12">
     <label class="font15 c-gray">Message</label>
     <div class="input-group mb-3">
-    <textarea class="form-control bg-light-gray" id="Comments" name="Comments" rows="3"></textarea>
+    <textarea class="form-control bg-light-gray"
+     id="Comments" name="Comments" 
+     rows="3" required></textarea>
     </div>
     </div>
     </div>
@@ -1426,8 +1556,14 @@ const ContectUs = () => {
     </div>
     <div class="row">
     <div class="col-12">
-    <input class="btn btn-primary btn-blue btn-block py-3 font15 font-weight-bold text-uppercase" type="submit" value="Send us Email" name="submit"/>
-    {/* <button className='button btn btn-primary btn-blue btn-block py-3 font15 font-weight-bold text-uppercase'>Send us Email</button> */}
+    <Button variant="primary"
+     className="btn-blue btn-block py-3 font15 font-weight-bold text-uppercase" 
+     type="submit" 
+     >
+          Send us Email
+        </Button>
+        <ToastContainer />
+
     <span>
     By clicking the "Submit" button, you are agreeing to the
     <a href> Terms of Use </a> and
